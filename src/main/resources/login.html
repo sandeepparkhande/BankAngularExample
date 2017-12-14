@@ -1,0 +1,87 @@
+<html ng-app="my-app">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular-route.js"></script>
+
+<script>
+    var angular = angular.module('my-app', ['ngRoute']);
+    angular.controller('loginCntrl', loginCntrl);
+
+    function loginCntrl($scope, $http,$window) {
+
+        this.loginFn = function () {
+            var config = {
+                headers: {
+                    'Accept': 'text/plain'
+                }
+            };
+            var url = "http://localhost:9001/login";
+
+            var data = {
+                userName: this.user.userName,
+                password: this.user.password
+
+            };
+
+            $http.post(url, data, config).then(function (response) {
+                $scope.postResultMessage = response.data;
+                console.log(" " + response.data);
+               if(response.data=="success")
+               {
+                var landingUrl = "transaction.html";
+                $window.location.href = landingUrl;
+               }else{
+                $scope.postResultMessage="Invalid Credentials";
+               }
+
+
+        
+            }, function error(response) {
+                $scope.postResultMessage = "Error with status: " + response.statusText;
+            });
+
+            console.log(" user logged in " + this.user.userName + " " + this.user.password);
+        }
+    };
+
+</script>
+
+<body ng-controller="loginCntrl as login">
+
+    <div class="container">
+            <h2> Login Page</h2>            
+        <table>
+            <tr>
+                <td> Enter your Login Credentials {{postResultMessage}}</td>
+            </tr>
+            <tr>
+                <td>User Name </td>
+                <td>
+                    <input type="text" placeholder="Enter Username" name="uName" ng-model="login.user.userName" required/> {{login.user.uName}}
+                </td>
+            </tr>
+            <tr>
+                <td>Password </td>
+                <td>
+                    <input type="password" placeholder="Enter Password" name="password" ng-model="login.user.password" required/>{{login.user.password}}
+                </td>
+            </tr>
+
+
+            <tr>
+                <td>
+                    <input type="button" name="Login" value="Login" ng-click="login.loginFn(user)" /> </td>
+                <td>
+                    <a href="registration.html">Register</a>
+                </td>
+            </tr>
+
+        </table>
+        </br>
+    </div>
+</body>
+
+</html>

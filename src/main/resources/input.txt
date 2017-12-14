@@ -1,0 +1,67 @@
+ {
+  "name" : "Sandeep Parkhaande",
+  "userName" : "Sandeep",
+  "password" : "Sandeep123",
+  "dob" : "1984-03-15",
+  "gender" : "Male",
+  "retypePassword" : "Sandeep123",
+  "contactNumber" : "9823365571",
+  "email" : "Sandeep@gmail.com",
+  "citizenship" : "India",
+  "accountType" : "Saving",
+  "registrationDate" : "2017-12-14",
+  "citizenStatus" : "NRI",
+  "branchName" : "Pune",
+  "initDepositAmount" : "10000",
+  "panNumber" : "ABCD1234",
+  "addressLine1" : "Address Line 1",
+  "addressLine2" : "Address Line 2",
+  "city" : "Pune",
+  "state" : "Maharashtra",
+  "country" : "India",
+   "pin" : "411046"
+}
+
+ Json {
+  "userName" : "Sandeep",
+  "password" : "Sandeep123"
+}
+
+{
+  "accountNo" : "1",
+  "accountName" : "Sandeep Transfer",
+  "accountType" : "Saving",
+  "transactionType" : "Credit",
+  "amount" : "10000",
+  "transactionDate" : "2017-02-01",
+  "transactionId" : "1"
+}
+
+ {
+  "accountNo" : "2",
+  "accountName" : "Sandeep Transfer",
+  "accountType" : "Saving",
+  "transactionType" : "Credit",
+  "amount" : "20000",
+  "transactionDate" : "2017-02-02",
+  "transactionId" : "2"
+}
+
+ {
+  "accountNo" : "3",
+  "accountName" : "Sandeep Transfer",
+  "accountType" : "Salary",
+  "transactionType" : "Debit",
+  "amount" : "30000",
+  "transactionDate" : "2017-04-04",
+  "transactionId" : "4"
+}
+ 
+ Json {
+  "from" : "2017-02-01",
+  "to" : "2017-02-02",
+  "transactionType" : "Debit",
+  "transactionNo" : "1",
+  "policyName" : "",
+  "transactionId" : "1"
+}

@@ -1,0 +1,126 @@
+<html ng-app="my-app">
+<h1> Transaction Page</h1>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular-route.js"></script>
+<script>
+    var angular = angular.module('my-app', []);
+    angular.controller('statementGenCntrl', statementGenCntrl);
+
+    function statementGenCntrl($scope,$http,$window) {
+       this.viewStatement=function(){
+        var config = {
+                headers: {
+                    'Accept': 'text/plain'
+                }
+            };
+            var url = "http://localhost:9001/statement";
+
+            var data = {
+                 from : this.statement.from,
+                 to : this.statement.to,
+                 transactionType: this.statement.transactionType,
+                 transactionNo : this.statement.transactionNo,
+                 policyName : this.statement.policyName,
+                 transactionId : this.statement.transactionId
+            };
+
+            $http.post(url, data, config).then(function (response) {
+                $scope.postResultMessage = response.data;
+                $scope.transactionList=response.data;
+                console.log(" " + response.data);
+               
+            }, function error(response) {
+                $scope.postResultMessage = "Error with status: " + response.statusText;
+            });
+
+           console.log(this.statement.from);
+       }
+    };
+
+</script>
+
+<body ng-controller="statementGenCntrl as stmtCntrl">
+
+    {{stmtCntrl.statement.transactionList}}
+    <a href="www.google.com"> Back to Home</a>
+    <div class="container">
+        <table>
+            <tr>
+                <td> From </td>
+                <td> <input type="date" name="from" ng-model="stmtCntrl.statement.from"/> </td>
+                <td>To </td>
+                <td> <input type="date" name="to" ng-model="stmtCntrl.statement.to"/></td>
+                <td>Transaction Type </td>
+                <td> 
+                    <select name="transactionType" ng-model="stmtCntrl.statement.transactionType">
+                            <option  value="Saving">Saving</option>
+                            <option  value="Saving">Salary</option>
+                            
+                   </select>
+                
+                </td>
+            </tr>
+
+            <tr>
+                <td> Number of Transaction </td>
+                <td><input type="text" name="transactionNo" ng-model="stmtCntrl.statement.transactionNo"/> </td>
+                <td> Policy Name </td>
+                <td><input type="text" name="policyName" ng-model="stmtCntrl.statement.policyName"/> </td>
+                <td> <input type="button" name="View" value="View" ng-click="stmtCntrl.viewStatement(statement)"/></td>
+                <td> <input type="button" name="Download" value="Download"/></td>
+                
+            </tr>
+
+            <tr>
+                <td> Transaction Id </td>
+                <td><input type="text" name="transactionId" ng-model="stmtCntrl.statement.transactionId"/> </td>
+                
+            </tr>
+         </table>
+        </br>
+    </div>
+
+    
+    <div>
+            <table class="w3-table-all w3-hoverable">
+                <tr>
+                    <th>Transaction Date</th>
+                    <th>Description</th>
+                    <th>Debit\Credit</th>
+                    <th>Balance</th>
+                </tr>
+                <tr ng-repeat="record in stmtCntrl.statement.transactionList">
+                    <td>{{record.transactioDate}}</td>
+                    <td>{{record.transactioDesciption}}</td>
+                    <td>{{record.transactionType}}</td>
+                    <td>{{record.amount}}</td>
+                </tr>
+            </table>
+            {{ctrl.headValue}}
+        </div>
+</body>
+
+
+<div>
+        <table class="w3-table-all w3-hoverable">
+            <tr>
+                <th>Transaction Date</th>
+                <th>Description</th>
+                <th>Debit\Credit</th>
+                <th>Balance</th>
+            </tr>
+            <tr ng-repeat="record in stmtCntrl.statement.transactionList">
+                <td>{{record.transactioDate}}</td>
+                <td>{{record.transactioDesciption}}</td>
+                <td>{{record.transactionType}}</td>
+                <td>{{record.amount}}</td>
+            </tr>
+        </table>
+        {{ctrl.headValue}}
+    </div>
+
+</html>

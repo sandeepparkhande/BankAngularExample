@@ -1,0 +1,176 @@
+<html ng-app="my-app">
+<h1> Registration Page</h1>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular-route.js"></script>
+<script>
+    var angular = angular.module('my-app', []);
+    angular.controller('registrationCntrl', registrationCntrl);
+
+    function registrationCntrl($scope,$http,$window) {
+
+        this.registerFn = function () {
+
+            var config = {
+                headers: {
+                    'Accept': 'text/plain'
+                }
+            };
+            var url = "http://localhost:9001/register";
+
+            var data = {
+                name: this.userInfo.name,
+                userName: this.userInfo.userName,
+                password: this.userInfo.password,
+                dob: this.userInfo.dob,
+                gender: this.userInfo.gender,
+                retypePassword: this.userInfo.retypePassword,
+                contactNumber: this.userInfo.contactNumber,
+                email: this.userInfo.email,
+                citizenship: this.userInfo.citizenship,
+                accountType: this.userInfo.accountType,
+                registrationDate: this.userInfo.registrationDate,
+                citizenStatus: this.userInfo.citizenStatus,
+                branchName: this.userInfo.branchName,
+                initDepositAmount: this.userInfo.initDepositAmount,
+                panNumber: this.userInfo.panNumber,
+                addressLine1: this.userInfo.addressLine1,
+                addressLine2: this.userInfo.addressLine2,
+                city: this.userInfo.city,
+                state: this.userInfo.state,
+                country: this.userInfo.country,
+                pin: this.userInfo.pin
+            };
+
+            $http.post(url, data, config).then(function (response) {
+                $scope.postResultMessage = response.data;
+                console.log(" " + response.data);
+                if(response.data=="success")
+               {
+                var landingUrl = "login.html";
+                $window.location.href = landingUrl;
+               }else{
+                $scope.postResultMessage="Invalid Credentials";
+               }
+            }, function error(response) {
+                $scope.postResultMessage = "Error with status: " + response.statusText;
+            });
+            console.log(" User Info " + this.userInfo);
+        }
+    };
+
+</script>
+
+<body ng-controller="registrationCntrl as regCntrl">
+
+    <a href="www.google.com"> Back to Home</a>
+    <div class="class="container"">
+        <table>
+            <tr>
+                <td> Name </td>
+                <td>
+                    <input type="text" name="name" ng-model="regCntrl.userInfo.name" /> </td>
+                <td>User Name </td>
+                <td>
+                    <input type="text" name="userName" ng-model="regCntrl.userInfo.userName" />
+                </td>
+                <td>Password </td>
+                <td>
+                    <input type="password" name="password" ng-model="regCntrl.userInfo.password" /> </td>
+            </tr>
+
+            <tr>
+                <td> Date of Birth </td>
+                <td>
+                    <input type="date" name="dob" ng-model="regCntrl.userInfo.dob" /> </td>
+                <td> Gender </td>
+                <td>
+                    Male <input type="radio" name="gender" value="Male" ng-model="regCntrl.userInfo.gender" />
+                    Female <input type="radio" name="gender" value="Female" ng-model="regCntrl.userInfo.gender" />
+                </td>
+                <td> Retype Password </td>
+                <td>
+                    <input type="password" name="retypePassword" ng-model="regCntrl.userInfo.retypePassword" /> </td>
+            </tr>
+
+            <tr>
+                <td> Contact Number </td>
+                <td>
+                    <input type="phone" name="contactNumber" ng-model="regCntrl.userInfo.contactNumber" /> </td>
+                <td> Email </td>
+                <td>
+                    <input type="email" name="email" ng-model="regCntrl.userInfo.email" /> </td>
+                <td>Citizenship </td>
+                <td>
+                    <input type="text" name="citizenship" ng-model="regCntrl.userInfo.citizenship" /> </td>
+            </tr>
+
+
+            <tr>
+                <td> Account Type </td>
+                <td>
+                    <input type="text" name="accountType" ng-model="regCntrl.userInfo.accountType" /> </td>
+                <td> Registation Date </td>
+                <td>
+                    <input type="date" name="registrationDate" ng-model="regCntrl.userInfo.registrationDate" /> </td>
+                <td>Citizen Status </td>
+                <td>
+                    <input type="text" name="citizenStatus" ng-model="regCntrl.userInfo.citizenStatus" /> </td>
+            </tr>
+
+            <tr>
+                <td> Branch Name </td>
+                <td>
+                    <input type="text" name="branchName" ng-model="regCntrl.userInfo.branchName" /> </td>
+                <td> Initial Deposit Amount </td>
+                <td>
+                    <input type="text" name="initDepositAmount" ng-model="regCntrl.userInfo.initDepositAmount" /> </td>
+                <td>PAN Number </td>
+                <td>
+                    <input type="text" name="panNumber" ng-model="regCntrl.userInfo.panNumber" /> </td>
+            </tr>
+
+            <tr>
+                <td> Address Line 1 </td>
+                <td>
+                    <input type="text" name="adressLine1" ng-model="regCntrl.userInfo.addressLine1" /> </td>
+                <td> Address Line 2 </td>
+                <td>
+                    <input type="text" name="adressLine2" ng-model="regCntrl.userInfo.addressLine2" /> </td>
+                <td> City </td>
+                <td>
+                    <input type="text" name="city" ng-model="regCntrl.userInfo.city" /> </td>
+            </tr>
+
+            <tr>
+                <td> State </td>
+                <td>
+                    <input type="text" name="state" ng-model="regCntrl.userInfo.state" /> </td>
+                <td> Country </td>
+                <td>
+                    <input type="text" name="country" ng-model="regCntrl.userInfo.country" /> </td>
+                <td> PIN no </td>
+                <td>
+                    <input type="text" name="pin" ng-model="regCntrl.userInfo.pin" /> </td>
+            </tr>
+
+
+            <tr>
+                <td>
+                    <input type="button" name="Register" value="Register" ng-click="regCntrl.registerFn(userInfo)" /> </td>
+                <td>
+                    <input type="button" name="Reset" value="Reset" /> </td>
+                <td>
+                    <input type="button" name="Cancel" value="Cancel" />
+                </td>
+            </tr>
+
+        </table>
+        </br>
+    </div>
+</body>
+
+</html>

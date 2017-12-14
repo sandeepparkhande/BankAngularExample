@@ -1,0 +1,108 @@
+<html ng-app="my-app">
+<h1> Transaction Page</h1>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular-route.js"></script>
+<script>
+    var angular = angular.module('my-app', []);
+    angular.controller('transactionCntrl', transactionCntrl);
+
+    function transactionCntrl($scope,$http,$window) {
+        this.transactionFn=function(){
+            var config = {
+                headers: {
+                    'Accept': 'text/plain'
+                }
+            };
+            var url = "http://localhost:9001/transaction";
+
+            var data = {
+
+               accountNo: this.transaction.accountNo,
+               accountName: this.transaction.accountName,
+               accountType:this.transaction.accountType,
+               trasactionType: this.transaction.trasactionType,
+               amount: this.transaction.amount,
+               transactionDate: this.transaction.transactionDate,
+               transactionId: this.transaction.transactionId
+
+            };
+
+            $http.post(url, data, config).then(function (response) {
+                $scope.postResultMessage = response.data;
+                if(response.data=="success")
+               {
+                var host = $window.location.host;
+                var landingUrl = "bankStatementGeneration.html";
+                alert(landingUrl);
+                $window.location.href = landingUrl;
+               }else{
+                $scope.postResultMessage="Invalid Credentials";
+               }
+                console.log(" " + response.data);
+            }, function error(response) {
+                $scope.postResultMessage = "Error with status: " + response.statusText;
+            });
+
+            console.log(" "+this.transaction.accountNo);
+        }
+    };
+
+</script>
+
+<body ng-controller="transactionCntrl as transCntrl">
+
+    <a href="www.google.com"> Back to Home</a>
+    <div class="container">
+        <table>
+            <tr>
+                <td> Account No </td>
+                <td> <input type="text" name="accountNo" ng-model="transCntrl.transaction.accountNo"/> </td>
+                <td>Account Name </td>
+                <td> <input type="text" name="accountName" ng-model="transCntrl.transaction.accountName"/></td>
+                <td>Account Type </td>
+                <td>
+                    <select ng-model="transCntrl.transaction.accountType">
+                        <option  value="Saving">Saving</option>
+                        <option  value="Saving">Salary</option>
+                    </select>
+                 </td>
+            </tr>
+
+            <tr>
+                <td> Transaction Type </td>
+                <td>
+                    <select ng-model="transCntrl.transaction.trasactionType">
+                            <option  value="Debit">Debit</option>
+                            <option  value="Credit">Credit</option>
+                        </select>
+                </td>
+                <td> Amount </td>
+                <td><input type="text" name="amount" ng-model="transCntrl.transaction.amount" /> </td>
+                <td> Transaction Date </td>
+                <td> <input type="date" name="transactionDate" ng-model="transCntrl.transaction.transactionDate"/> </td>
+            </tr>
+
+            <tr>
+                <td> Transaction Id </td>
+                <td><input type="text" name="transactionId" ng-model="transCntrl.transaction.transactionId"/> </td>
+                
+            </tr>
+
+
+
+            <tr>
+                <td> <input type="button" name="Submit" value="Submit" ng-click="transCntrl.transactionFn(transaction)"/> </td>
+                <td> <input type="button" name="Reset" value="Reset" /> </td>
+                <td> <input type="button" name="Cancel" value="Cancel" /></td>
+            </tr>
+
+        </table>
+        </br>
+    </div>
+</body>
+
+</html>
