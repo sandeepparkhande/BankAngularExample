@@ -1,5 +1,7 @@
 <html ng-app="my-app">
-<h1> Registration Page</h1>
+<div align="center">
+    <h2> Registration Page</h2>
+</div>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
@@ -10,7 +12,88 @@
     var angular = angular.module('my-app', []);
     angular.controller('registrationCntrl', registrationCntrl);
 
-    function registrationCntrl($scope,$http,$window) {
+    function registrationCntrl($scope, $http, $window, $filter) {
+
+        $scope.countries = {
+
+            'USA': {
+                'Alabama': ['Montgomery', 'Birmingham'],
+                'California': ['Sacramento', 'Fremont'],
+                'Illinois': ['Springfield', 'Chicago']
+            },
+            'India': {
+                'Maharashtra': ['Pune', 'Mumbai', 'Nagpur', 'Akola'],
+                'Madhya Pradesh': ['Indore', 'Bhopal', 'Jabalpur'],
+                'Rajasthan': ['Jaipur', 'Ajmer', 'Jodhpur']
+            },
+            'Australia': {
+                'New South Wales': ['Sydney'],
+                'Victoria': ['Melbourne']
+            }
+        };
+
+        this.master = {};
+
+        this.clearList = function () {
+            this.userInfo = [];
+        }
+
+        $scope.GetSelectedCountry = function () {
+            $scope.strCountry = this.userInfo.country;
+        };
+        $scope.GetSelectedState = function () {
+            $scope.strState =  this.userInfo.state;
+        };
+
+        this.checkAge = function () {
+            var dob = new Date(this.userInfo.dob);
+            var today = new Date();
+            var age = ((today - dob) / (31557600000));
+            var age = Math.floor(age);
+
+            if (age > 60) {
+                this.userInfo.citizenship = "Senior Citizen";
+            }
+
+            if (age <= 60 && age >= 18) {
+                this.userInfo.citizenship = "Citizen";
+            }
+
+
+            this.userInfo.ageLessThanZeroMessage="";
+
+            if (age < 18) {
+                this.userInfo.citizenship = "Minor";
+                this.userInfo.ageLessThanZeroMessage="Age should not be less than 18";
+            }
+            
+
+            if(age < 0){
+                this.userInfo.ageLessThanZeroMessage="DOB Should not be future date";
+             }
+            console.log(age);
+        }
+
+        this.checkInitDeposit=function(){
+            var accountType=this.userInfo.accountType;
+            if(accountType=="Saving"){
+                this.userInfo.initDepositAmount=5000;
+            }
+            ;
+            if(accountType=="Salary"){
+                this.userInfo.initDepositAmount=0000;
+            }
+        }
+
+        this.checkPassword=function(){
+            var password=this.userInfo.password;
+            var retypePassword=this.userInfo.retypePassword;
+            if(password!=retypePassword){
+                this.userInfo.passwordMessage="Retype and Password Mismatch";
+            }else{
+                this.userInfo.passwordMessage="";
+            }
+        }
 
         this.registerFn = function () {
 
@@ -21,18 +104,22 @@
             };
             var url = "http://localhost:9001/register";
 
+            var registrationDate = $filter("date")(this.userInfo.registrationDate, 'yyyy-MM-dd');
+            var dob = $filter("date")(this.userInfo.dob, 'yyyy-MM-dd');
+            var activationDate=registrationDate+5;
+            
             var data = {
                 name: this.userInfo.name,
                 userName: this.userInfo.userName,
                 password: this.userInfo.password,
-                dob: this.userInfo.dob,
+                dob: dob,
                 gender: this.userInfo.gender,
                 retypePassword: this.userInfo.retypePassword,
                 contactNumber: this.userInfo.contactNumber,
                 email: this.userInfo.email,
                 citizenship: this.userInfo.citizenship,
                 accountType: this.userInfo.accountType,
-                registrationDate: this.userInfo.registrationDate,
+                registrationDate: registrationDate,
                 citizenStatus: this.userInfo.citizenStatus,
                 branchName: this.userInfo.branchName,
                 initDepositAmount: this.userInfo.initDepositAmount,
@@ -40,21 +127,20 @@
                 addressLine1: this.userInfo.addressLine1,
                 addressLine2: this.userInfo.addressLine2,
                 city: this.userInfo.city,
-                state: this.userInfo.state,
-                country: this.userInfo.country,
+                state: this.strState,
+                country: this.strCountry,
                 pin: this.userInfo.pin
             };
 
             $http.post(url, data, config).then(function (response) {
                 $scope.postResultMessage = response.data;
                 console.log(" " + response.data);
-                if(response.data=="success")
-               {
-                var landingUrl = "login.html";
-                $window.location.href = landingUrl;
-               }else{
-                $scope.postResultMessage="Invalid Credentials";
-               }
+                if (response.data == "success") {
+                    var landingUrl = "login.html";
+                    $window.location.href = landingUrl;
+                } else {
+                    $scope.postResultMessage = "Invalid Credentials";
+                }
             }, function error(response) {
                 $scope.postResultMessage = "Error with status: " + response.statusText;
             });
@@ -64,113 +150,205 @@
 
 </script>
 
-<body ng-controller="registrationCntrl as regCntrl">
+<body>
 
-    <a href="www.google.com"> Back to Home</a>
-    <div class="class="container"">
-        <table>
-            <tr>
-                <td> Name </td>
-                <td>
-                    <input type="text" name="name" ng-model="regCntrl.userInfo.name" /> </td>
-                <td>User Name </td>
-                <td>
-                    <input type="text" name="userName" ng-model="regCntrl.userInfo.userName" />
-                </td>
-                <td>Password </td>
-                <td>
-                    <input type="password" name="password" ng-model="regCntrl.userInfo.password" /> </td>
-            </tr>
+    <form name="regForm" ng-controller="registrationCntrl as regCntrl">
 
-            <tr>
-                <td> Date of Birth </td>
-                <td>
-                    <input type="date" name="dob" ng-model="regCntrl.userInfo.dob" /> </td>
-                <td> Gender </td>
-                <td>
-                    Male <input type="radio" name="gender" value="Male" ng-model="regCntrl.userInfo.gender" />
-                    Female <input type="radio" name="gender" value="Female" ng-model="regCntrl.userInfo.gender" />
-                </td>
-                <td> Retype Password </td>
-                <td>
-                    <input type="password" name="retypePassword" ng-model="regCntrl.userInfo.retypePassword" /> </td>
-            </tr>
+        <a href="login.html"> Back to Home</a>
+        <div class="class=" container "">
+            <table class="table">
+                <tr>
+                    <td> Name </td>
+                    <td>
+                        <input type="text" name="name" ng-model="regCntrl.userInfo.name" ng-pattern="/^(\D)+$/" required/> </td>
+                    <span style="color:red" ng-show="regForm.name.$dirty &&regForm.name.$invalid">
+                        <span ng-show="lregForm.name.$error.required">Name is required.</span>
+                    </span>
+                    <td>User Name </td>
+                    <td>
+                        <input type="text" name="userName" ng-model="regCntrl.userInfo.userName" />
+                    </td>
+                    <td>Password </td>
+                    <td>
+                        <input type="password" name="password" ng-model="regCntrl.userInfo.password" ng-change="regCntrl.checkPassword(userInfo)"  required/> </td>
+                    <span style="color:red" ng-show="regForm.password.$dirty && regForm.password.$invalid">
+                        <span ng-show="regForm.password.$error.required">Password is required.</span>
+                    </span>
+                </tr>
 
-            <tr>
-                <td> Contact Number </td>
-                <td>
-                    <input type="phone" name="contactNumber" ng-model="regCntrl.userInfo.contactNumber" /> </td>
-                <td> Email </td>
-                <td>
-                    <input type="email" name="email" ng-model="regCntrl.userInfo.email" /> </td>
-                <td>Citizenship </td>
-                <td>
-                    <input type="text" name="citizenship" ng-model="regCntrl.userInfo.citizenship" /> </td>
-            </tr>
+                <tr>
+                    <td> Date of Birth </td>
+                    <td>
+                        <input type="date" name="dob" ng-model="regCntrl.userInfo.dob" ng-change="regCntrl.checkAge(userInfo)" /> {{regCntrl.userInfo.ageLessThanZeroMessage}}
+                        <span style="color:red" ng-show="regForm.dob.$dirty &&regForm.dob.$invalid">
+                            <span ng-show="regForm.dob.$error.required">DOB is required.</span>
+                        </span>
+                    </td>
+                    <td> Gender </td>
+                    <td>
+                        Male <input type="radio" name="gender" value="Male" ng-model="regCntrl.userInfo.gender" /> 
+                        Female <input type="radio" name="gender" value="Female" ng-model="regCntrl.userInfo.gender" />
+                        <span style="color:red" ng-show="regForm.gender.$dirty &&regForm.gender.$invalid">
+                            <span ng-show="regForm.gender.$error.required"> Select Gender is required.</span>
+                        </span>
+                    </td>
+                    <td> Retype Password </td>
+                    <td>
+                        <input type="password" name="retypePassword" ng-model="regCntrl.userInfo.retypePassword" ng-change="regCntrl.checkPassword(userInfo)"/> {{regCntrl.userInfo.passwordMessage}}</td>
+                    <span style="color:red" ng-show="regForm.retypePassword.$dirty &&regForm.retypePassword.$invalid">
+                        <span ng-show="regForm.retypePassword.$error.required">Retype Password is required.</span>
+                    </span>
+                </tr>
 
-
-            <tr>
-                <td> Account Type </td>
-                <td>
-                    <input type="text" name="accountType" ng-model="regCntrl.userInfo.accountType" /> </td>
-                <td> Registation Date </td>
-                <td>
-                    <input type="date" name="registrationDate" ng-model="regCntrl.userInfo.registrationDate" /> </td>
-                <td>Citizen Status </td>
-                <td>
-                    <input type="text" name="citizenStatus" ng-model="regCntrl.userInfo.citizenStatus" /> </td>
-            </tr>
-
-            <tr>
-                <td> Branch Name </td>
-                <td>
-                    <input type="text" name="branchName" ng-model="regCntrl.userInfo.branchName" /> </td>
-                <td> Initial Deposit Amount </td>
-                <td>
-                    <input type="text" name="initDepositAmount" ng-model="regCntrl.userInfo.initDepositAmount" /> </td>
-                <td>PAN Number </td>
-                <td>
-                    <input type="text" name="panNumber" ng-model="regCntrl.userInfo.panNumber" /> </td>
-            </tr>
-
-            <tr>
-                <td> Address Line 1 </td>
-                <td>
-                    <input type="text" name="adressLine1" ng-model="regCntrl.userInfo.addressLine1" /> </td>
-                <td> Address Line 2 </td>
-                <td>
-                    <input type="text" name="adressLine2" ng-model="regCntrl.userInfo.addressLine2" /> </td>
-                <td> City </td>
-                <td>
-                    <input type="text" name="city" ng-model="regCntrl.userInfo.city" /> </td>
-            </tr>
-
-            <tr>
-                <td> State </td>
-                <td>
-                    <input type="text" name="state" ng-model="regCntrl.userInfo.state" /> </td>
-                <td> Country </td>
-                <td>
-                    <input type="text" name="country" ng-model="regCntrl.userInfo.country" /> </td>
-                <td> PIN no </td>
-                <td>
-                    <input type="text" name="pin" ng-model="regCntrl.userInfo.pin" /> </td>
-            </tr>
+                <tr>
+                    <td> Contact Number </td>
+                    <td>
+                        <input type="phone" name="contactNumber" ng-model="regCntrl.userInfo.contactNumber" ng-maxlength="10"/>
+                        <span style="color:red" ng-show="login.user.password.$dirty &&login.user.password.$invalid">
+                            <span ng-show="login.user.password.$error.required">Password is required.</span>
+                        </span>
+                    </td>
+                    <td> Email </td>
+                    <td>
+                        <input type="email" name="email" ng-model="regCntrl.userInfo.email" />
+                        <span style="color:red" ng-show="regForm.email.$dirty &&regForm.email.$invalid">
+                            <span ng-show="regForm.email.$error.required">Email is required.</span>
+                        </span>
+                    </td>
+                    <td>Citizenship </td>
+                    <td>
+                        <input type="text" name="citizenship" ng-model="regCntrl.userInfo.citizenship" ng-disabled="true" />
+                        <span style="color:red" ng-show="regForm.citizenship.$dirty &&regForm.citizenship.$invalid">
+                            <span ng-show="regForm.citizenship.$error.required">Citizenship is required.</span>
+                        </span>
+                    </td>
+                </tr>
 
 
-            <tr>
-                <td>
-                    <input type="button" name="Register" value="Register" ng-click="regCntrl.registerFn(userInfo)" /> </td>
-                <td>
-                    <input type="button" name="Reset" value="Reset" /> </td>
-                <td>
-                    <input type="button" name="Cancel" value="Cancel" />
-                </td>
-            </tr>
+                <tr>
+                    <td> Account Type </td>
+                    <td>
+                        <select ng-model="regCntrl.userInfo.accountType" ng-change="regCntrl.checkInitDeposit(userInfo)">
+                            <option value="Saving">Saving Account </option>
+                            <option value="Salary">Salary Account </option>
+                        </select>
 
-        </table>
-        </br>
-    </div>
+                        <span style="color:red" ng-show="regForm.accountType.$dirty &&regForm.accountType.$invalid">
+                            <span ng-show="regForm.accountType.$error.required">Account Type is required.</span>
+                        </span>
+                    </td>
+                    <td> Registation Date </td>
+                    <td>
+                        <input type="date" name="registrationDate" ng-model="regCntrl.userInfo.registrationDate" />
+                        <span style="color:red" ng-show="regForm.registrationDate.$dirty &&regForm.registrationDate.$invalid">
+                            <span ng-show="regForm.registrationDate.$error.required">Registation Date is required.</span>
+                        </span>
+                    </td>
+                    <td>Citizen Status </td>
+                    <td>
+                        <input type="text" name="citizenStatus" ng-model="regCntrl.userInfo.citizenStatus" />
+                        <span style="color:red" ng-show="regForm.citizenStatus.$dirty &&regForm.citizenStatus.$invalid">
+                            <span ng-show="regForm.citizenStatus.$error.required">Citizenship is required.</span>
+                        </span>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td> Branch Name </td>
+                    <td>
+                        <input type="text" name="branchName" ng-model="regCntrl.userInfo.branchName" />
+                        <span style="color:red" ng-show="regForm.branchName.$dirty &&regForm.branchName.$invalid">
+                            <span ng-show="regForm.branchName.$error.required">Branch Name is required.</span>
+                        </span>
+                    </td>
+                    <td> Initial Deposit Amount </td>
+                    <td>
+                        <input type="text" name="initDepositAmount" ng-model="regCntrl.userInfo.initDepositAmount" />
+                        <span style="color:red" ng-show="regForm.initDepositAmount.$dirty &&regForm.initDepositAmount.$invalid">
+                            <span ng-show="regForm.initDepositAmount.$error.required">Initial Deposit is required.</span>
+                        </span>
+                    </td>
+                    <td>PAN Number </td>
+                    <td>
+                        <input type="text" name="panNumber" ng-model="regCntrl.userInfo.panNumber" ng-maxlength="12" ng-pattern="/^(?=.*[0-9])(?=.*[a-zA-Z])([a-zA-Z0-9]+)$/"
+                        />
+                        <span style="color:red" ng-show="regForm.panNumber.$dirty &&regForm.panNumber.$invalid">
+                            <span ng-show="regForm.panNumber.$error.required">PAN Number is required.</span>
+                        </span>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td> Address Line 1 </td>
+                    <td>
+                        <input type="text" name="adressLine1" ng-model="regCntrl.userInfo.addressLine1" />
+                        <span style="color:red" ng-show="regForm.adressLine1.$dirty &&regForm.adressLine1.$invalid">
+                            <span ng-show="regForm.adressLine1.$error.required">Address Line 1 is required.</span>
+                        </span>
+                    </td>
+                    <td> Address Line 2 </td>
+                    <td>
+                        <input type="text" name="adressLine2" ng-model="regCntrl.userInfo.addressLine2" /> </td>
+                    <td> PIN no </td>
+                    <td>
+                        <input type="text" name="pin" ng-model="regCntrl.userInfo.pin" />
+                        <span style="color:red" ng-show="regForm.pin.$dirty &&regForm.pin.$invalid">
+                            <span ng-show="regForm.pin.$error.required">City is required.</span>
+                        </span>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td> Country </td>
+                    <td>
+
+                        <select id="country" ng-model="regCntrl.userInfo.country" ng-options="country for (country, states) in countries" ng-change="regCntrl.GetSelectedCountry()">
+                            <option value=''>Select</option>
+                        </select>
+                        <span style="color:red" ng-show="regForm.country.$dirty &&regForm.country.$invalid">
+                            <span ng-show="regForm.country.$error.required">Country is required.</span>
+                        </span>
+                    </td>
+                    <td> State </td>
+                    <td>
+
+                        <select id="state" ng-disabled="!regCntrl.userInfo.country" ng-model="regCntrl.userInfo.state" ng-options="state for (state,city) in regCntrl.userInfo.country"
+                            ng-change="regCntrl.GetSelectedState()">
+                            <option value=''>Select</option>
+                        </select>
+
+                        <span style="color:red" ng-show="regForm.state.$dirty &&regForm.state.$invalid">
+                            <span ng-show="regForm.state.$error.required">State is required.</span>
+                        </span>
+                    </td>
+
+                    <td> City </td>
+                    <td>
+
+                        <select id="city" ng-disabled="!regCntrl.userInfo.country || !regCntrl.userInfo.state" ng-model="regCntrl.userInfo.city" ng-options="city for city in regCntrl.userInfo.state">
+                            <option value=''>Select</option>
+
+                        </select>
+                        <span style="color:red" ng-show="regForm.city.$dirty &&regForm.city.$invalid">
+                            <span ng-show="regForm.city.$error.required">City is required.</span>
+                        </span>
+                    </td>
+
+                </tr>
+                <tr>
+                    <td>
+                        <input type="button" name="Register" value="Register" ng-click="regCntrl.registerFn(userInfo)" /> </td>
+                    <td>
+                        <input type="button" name="Reset" value="Reset" ng-click="regCntrl.clearList()" /> </td>
+                    <td>
+                        <input type="button" name="Cancel" value="Cancel" />
+                    </td>
+                </tr>
+
+            </table>
+            </br>
+        </div>
+    </form>
 </body>
 
 </html>

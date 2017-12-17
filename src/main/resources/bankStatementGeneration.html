@@ -1,5 +1,5 @@
 <html ng-app="my-app">
-<h1> Transaction Page</h1>
+<div align="center"><h2> Transaction Page</h2></div>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
@@ -10,117 +10,227 @@
     var angular = angular.module('my-app', []);
     angular.controller('statementGenCntrl', statementGenCntrl);
 
-    function statementGenCntrl($scope,$http,$window) {
-       this.viewStatement=function(){
-        var config = {
+    function statementGenCntrl($scope, $http, $window, $filter) {
+
+        this.viewStatement = function () {
+            var config = {
                 headers: {
-                    'Accept': 'text/plain'
+                    'Accept': 'application/json'
                 }
             };
             var url = "http://localhost:9001/statement";
+            var from = $filter("date")(this.statement.from, 'yyyy-MM-dd');
+            var to = $filter("date")(this.statement.to, 'yyyy-MM-dd');
 
             var data = {
-                 from : this.statement.from,
-                 to : this.statement.to,
-                 transactionType: this.statement.transactionType,
-                 transactionNo : this.statement.transactionNo,
-                 policyName : this.statement.policyName,
-                 transactionId : this.statement.transactionId
+                from: from,
+                to: to,
+                transactionType: this.statement.transactionType,
+                transactionNo: this.statement.transactionNo,
+                policyName: this.statement.policyName,
+                transactionId: this.statement.transactionId
             };
 
             $http.post(url, data, config).then(function (response) {
-                $scope.postResultMessage = response.data;
-                $scope.transactionList=response.data;
+                $scope.stmtCntrl.transactionList = response.data;
                 console.log(" " + response.data);
-               
+
             }, function error(response) {
                 $scope.postResultMessage = "Error with status: " + response.statusText;
             });
 
-           console.log(this.statement.from);
-       }
+        }
+
+        this.downloadCsv = function () {
+
+            function exportTableToCSV029($table, filename) {
+
+                var $rows = $table.find('tr:has(td)'),
+
+                    // Temporary delimiter characters unlikely to be typed by keyboard
+                    // This is to avoid accidentally splitting the actual contents
+                    tmpColDelim = String.fromCharCode(11), // vertical tab character
+                    tmpRowDelim = String.fromCharCode(0), // null character
+
+                    // actual delimiter characters for CSV format
+                    colDelim = '","',
+                    rowDelim = '"\r\n"',
+
+                    csv = '"' + $rows.map(function (i, row) {
+                        var $row = $(row),
+                            $cols = $row.find('td');
+
+                        return $cols.map(function (j, col) {
+                            var $col = $(col),
+                                text = $col.text();
+
+                            return text.replace(/"/g, '""'); // escape double quotes
+
+                        }).get().join(tmpColDelim);
+
+                    }).get().join(tmpRowDelim)
+                        .split(tmpRowDelim).join(rowDelim)
+                        .split(tmpColDelim).join(colDelim) + '"';
+
+                // Deliberate 'false', see comment below
+                if (false && window.navigator.msSaveBlob) {
+
+                    var blob = new Blob([decodeURIComponent(csv)], {
+                        type: 'text/csv;charset=utf8'
+                    });
+
+                    // Crashes in IE 10, IE 11 and Microsoft Edge
+                    // See MS Edge Issue #10396033
+                    // Hence, the deliberate 'false'
+                    // This is here just for completeness
+                    // Remove the 'false' at your own risk
+                    window.navigator.msSaveBlob(blob, filename);
+
+                } else if (window.Blob && window.URL) {
+
+                    // HTML5 Blob
+                    var blob = new Blob([csv], {
+                        type: 'text/csv;charset=utf-8'
+                    });
+                    var csvUrl = URL.createObjectURL(blob);
+
+                    //this trick will generate a temp <a /> tag
+                    var link = document.createElement("a");
+                    link.href = csvUrl;
+
+                    //set the visibility hidden so it will not effect on your web-layout
+                    link.style = "visibility:hidden";
+                    link.download = filename; //fileName + ".csv";
+
+                    //this part will append the anchor tag and remove it after automatic click
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+
+                } else {
+
+                    // Data URI
+                    var csvData = 'data:application/csv;charset=utf-8,' + encodeURIComponent(csv);
+
+                    //this trick will generate a temp <a /> tag
+                    var link = document.createElement("a");
+                    link.href = csvData;
+
+                    //set the visibility hidden so it will not effect on your web-layout
+                    link.style = "visibility:hidden";
+                    link.download = filename; //fileName + ".csv";
+
+                    //this part will append the anchor tag and remove it after automatic click
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+
+                }
+
+            }
+
+            //use a default name to export - change as necessary
+            //if the table name in the div id= changes - you MUST change the name here also
+            //default is dvData
+            var args = [$('#dvData>table'), 'export.csv'];
+            exportTableToCSV029.apply(this, args);
+
+        }
+
+
     };
 
 </script>
 
 <body ng-controller="statementGenCntrl as stmtCntrl">
 
-    {{stmtCntrl.statement.transactionList}}
-    <a href="www.google.com"> Back to Home</a>
     <div class="container">
-        <table>
+        <table class="table">
+            <tr>
+                <td> <a href="login.html"> Login </a></td>
+                <td> <a href="registration.html"> Register </a></td>
+                <td> <a href="transaction.html"> Transaction </a></td>
+                <td> <a href="bankStatementGeneration.html"> Statement </a></td>
+            </tr>
+          </table>  
+    </div>
+    
+    <div class="container">
+        <table class="table">
             <tr>
                 <td> From </td>
-                <td> <input type="date" name="from" ng-model="stmtCntrl.statement.from"/> </td>
+                <td>
+                    <input type="date" name="from" ng-model="stmtCntrl.statement.from" /> 
+                    <span style="color:red" ng-show="login.user.password.$dirty &&login.user.password.$invalid">
+                        <span ng-show="login.user.password.$error.required">Password is required.</span>
+                    </span></td>
                 <td>To </td>
-                <td> <input type="date" name="to" ng-model="stmtCntrl.statement.to"/></td>
+                <td>
+                    <input type="date" name="to" ng-model="stmtCntrl.statement.to" />
+                    <span style="color:red" ng-show="login.user.password.$dirty &&login.user.password.$invalid">
+                        <span ng-show="login.user.password.$error.required">Password is required.</span>
+                    </span>
+                </td>
                 <td>Transaction Type </td>
-                <td> 
+                <td>
                     <select name="transactionType" ng-model="stmtCntrl.statement.transactionType">
-                            <option  value="Saving">Saving</option>
-                            <option  value="Saving">Salary</option>
-                            
-                   </select>
-                
+                        <option value="Saving">Saving</option>
+                        <option value="Saving">Salary</option>
+
+                    </select>
+                    <span style="color:red" ng-show="login.user.password.$dirty &&login.user.password.$invalid">
+                        <span ng-show="login.user.password.$error.required">Password is required.</span>
+                    </span>
+
                 </td>
             </tr>
 
             <tr>
                 <td> Number of Transaction </td>
-                <td><input type="text" name="transactionNo" ng-model="stmtCntrl.statement.transactionNo"/> </td>
+                <td>
+                    <input type="text" name="transactionNo" ng-model="stmtCntrl.statement.transactionNo" /> </td>
                 <td> Policy Name </td>
-                <td><input type="text" name="policyName" ng-model="stmtCntrl.statement.policyName"/> </td>
-                <td> <input type="button" name="View" value="View" ng-click="stmtCntrl.viewStatement(statement)"/></td>
-                <td> <input type="button" name="Download" value="Download"/></td>
-                
+                <td>
+                    <input type="text" name="policyName" ng-model="stmtCntrl.statement.policyName" /> </td>
+                <td>
+                    <input type="button" name="View" value="View" ng-click="stmtCntrl.viewStatement(statement)" />
+                </td>
+                <td>
+                    <input type="button" name="Download" value="Download" ng-click="stmtCntrl.downloadCsv()"/>
+                </td>
+
             </tr>
 
             <tr>
                 <td> Transaction Id </td>
-                <td><input type="text" name="transactionId" ng-model="stmtCntrl.statement.transactionId"/> </td>
-                
+                <td>
+                    <input type="text" name="transactionId" ng-model="stmtCntrl.statement.transactionId" /> </td>
+
             </tr>
-         </table>
+        </table>
         </br>
     </div>
 
-    
-    <div>
-            <table class="w3-table-all w3-hoverable">
-                <tr>
-                    <th>Transaction Date</th>
-                    <th>Description</th>
-                    <th>Debit\Credit</th>
-                    <th>Balance</th>
-                </tr>
-                <tr ng-repeat="record in stmtCntrl.statement.transactionList">
-                    <td>{{record.transactioDate}}</td>
-                    <td>{{record.transactioDesciption}}</td>
-                    <td>{{record.transactionType}}</td>
-                    <td>{{record.amount}}</td>
-                </tr>
-            </table>
-            {{ctrl.headValue}}
-        </div>
-</body>
 
-
-<div>
-        <table class="w3-table-all w3-hoverable">
+    <div class="container">
+        <table class="table">
             <tr>
                 <th>Transaction Date</th>
                 <th>Description</th>
                 <th>Debit\Credit</th>
                 <th>Balance</th>
             </tr>
-            <tr ng-repeat="record in stmtCntrl.statement.transactionList">
-                <td>{{record.transactioDate}}</td>
+
+
+
+            <tr ng-repeat="record in stmtCntrl.transactionList">
+                <td>{{record.transactionDate}}</td>
                 <td>{{record.transactioDesciption}}</td>
                 <td>{{record.transactionType}}</td>
                 <td>{{record.amount}}</td>
             </tr>
         </table>
-        {{ctrl.headValue}}
     </div>
+</body>
 
 </html>

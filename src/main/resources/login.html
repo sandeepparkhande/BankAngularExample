@@ -10,7 +10,7 @@
     var angular = angular.module('my-app', ['ngRoute']);
     angular.controller('loginCntrl', loginCntrl);
 
-    function loginCntrl($scope, $http,$window) {
+    function loginCntrl($scope, $http, $window) {
 
         this.loginFn = function () {
             var config = {
@@ -18,7 +18,7 @@
                     'Accept': 'text/plain'
                 }
             };
-            var url = "http://localhost:9001/login";
+            var url = "http://localhost:9001/loginUser";
 
             var data = {
                 userName: this.user.userName,
@@ -29,16 +29,15 @@
             $http.post(url, data, config).then(function (response) {
                 $scope.postResultMessage = response.data;
                 console.log(" " + response.data);
-               if(response.data=="success")
-               {
-                var landingUrl = "transaction.html";
-                $window.location.href = landingUrl;
-               }else{
-                $scope.postResultMessage="Invalid Credentials";
-               }
+                if (response.data == "success") {
+                    var landingUrl = "transaction.html";
+                    $window.location.href = landingUrl;
+                } else {
+                    $scope.postResultMessage = "Invalid Credentials";
+                }
 
 
-        
+
             }, function error(response) {
                 $scope.postResultMessage = "Error with status: " + response.statusText;
             });
@@ -49,39 +48,49 @@
 
 </script>
 
-<body ng-controller="loginCntrl as login">
+<body>
 
-    <div class="container">
-            <h2> Login Page</h2>            
-        <table>
-            <tr>
-                <td> Enter your Login Credentials {{postResultMessage}}</td>
-            </tr>
-            <tr>
-                <td>User Name </td>
-                <td>
-                    <input type="text" placeholder="Enter Username" name="uName" ng-model="login.user.userName" required/> {{login.user.uName}}
-                </td>
-            </tr>
-            <tr>
-                <td>Password </td>
-                <td>
-                    <input type="password" placeholder="Enter Password" name="password" ng-model="login.user.password" required/>{{login.user.password}}
-                </td>
-            </tr>
+    <form name="myForm" ng-controller="loginCntrl as login" novalidate>
+
+        <div class="container">
+            <h2> Login Page</h2>
+            <table class="table">
+                <tr>
+                    <td> Enter your Login Credentials {{postResultMessage}}</td>
+                </tr>
+                <tr>
+                    <td>User Name </td>
+                    <td>
+                        <input type="text" placeholder="Enter Username" name="userName" ng-model="login.user.userName" required/>
+                        <span style="color:red" ng-show="myForm.userName.$dirty &&myForm.userName.$invalid">
+                            <span ng-show="myForm.userName.$error.required">User Name is required.</span>
+                        </span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Password </td>
+                    <td>
+                        <input type="password" placeholder="Enter Password" name="password" ng-model="login.user.password" required/>
+                        <span style="color:red" ng-show="myForm.password.$dirty &&myForm.password.$invalid">
+                            <span ng-show="myForm.password.$error.required">Password is required.</span>
+                        </span>
+                    </td>
+                </tr>
 
 
-            <tr>
-                <td>
-                    <input type="button" name="Login" value="Login" ng-click="login.loginFn(user)" /> </td>
-                <td>
-                    <a href="registration.html">Register</a>
-                </td>
-            </tr>
+                <tr>
+                    <td>
+                        <input type="submit" name="Login" value="Login" ng-click="login.loginFn(user)" ng-disabled="myForm.userName.$dirty && myForm.userName.$invalid ||
+                    myForm.password.$dirty &&  myForm.password.$invalid" /> </td>
+                    <td>
+                        <a href="registration.html">Register</a>
+                    </td>
+                </tr>
 
-        </table>
-        </br>
-    </div>
+            </table>
+            </br>
+        </div>
+    </form>
 </body>
 
 </html>

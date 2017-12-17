@@ -1,9 +1,15 @@
 package com.domain;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 public class Statement {
 
+	@JsonFormat(pattern="yyyy-MM-dd")
 	private String from;
+	
+	@JsonFormat(pattern="yyyy-MM-dd")
 	private String to;
+	
 	private String transactionType;
 	private String transactionNo;
 	private String policyName;

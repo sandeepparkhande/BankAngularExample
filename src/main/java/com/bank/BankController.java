@@ -1,11 +1,14 @@
 package com.bank;
 
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -18,6 +21,8 @@ import com.domain.Transaction;
 import com.domain.User;
 import com.domain.UserInfo;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RestController
 public class BankController {
@@ -31,7 +36,7 @@ public class BankController {
 	@Autowired
 	EntityManager entityManager;
 
-	@PostMapping("/login")
+	@PostMapping("/loginUser")
 	@CrossOrigin
 	public String login(@RequestBody User user) {
 		System.out.println(" Request " + user.toString());
@@ -45,7 +50,7 @@ public class BankController {
 
 	@PostMapping("/statement")
 	@CrossOrigin
-	public String statement(@RequestBody Statement statement) {
+	public List<Transaction> statement(@RequestBody Statement statement) {
 		System.out.println(" Request " + statement.toString());
 		
 		String query = "select t from Transaction t where t.transactionDate >= :from and  t.transactionDate <= :to  and t.accountType = :accountType";
@@ -56,7 +61,7 @@ public class BankController {
 		typedQuery.setParameter("accountType", statement.getTransactionType());
 		//typedQuery.setParameter(4, statement.getTransactionNo());
 		List<Transaction> transactions=typedQuery.getResultList();
-		return transactions.toString();
+		return transactions;
 	}
 
 	@PostMapping("/transaction")
@@ -84,6 +89,22 @@ public class BankController {
 		}
 		
 		return "Register Failed " ;
+	}
+	
+	public String formatDate(){
+		
+		SimpleDateFormat format1 = new SimpleDateFormat("yyyy-MM-dd");
+		return null;
+	}
+	
+	
+	@Bean
+	public MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter() {
+	 MappingJackson2HttpMessageConverter jsonConverter = new MappingJackson2HttpMessageConverter();
+	 ObjectMapper objectMapper = new ObjectMapper();
+	 objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+	 jsonConverter.setObjectMapper(objectMapper);
+	 return jsonConverter;
 	}
 
 	private UserInfo initUser() {
